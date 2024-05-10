@@ -1,8 +1,9 @@
-use std::{
-  fmt::format, io::{prelude::*, BufReader}, net::{TcpListener, TcpStream}
-};
+mod requests;
+mod types;
 
-const CRLF: &str = "\r\n";
+use std::{
+  io::prelude::*, net::{TcpListener, TcpStream}
+};
 
 fn main() {
   let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
@@ -15,17 +16,6 @@ fn main() {
 
 fn handle_connection(mut stream: TcpStream) {
   println!("Handling connection");
-  let buf_reader = BufReader::new(&mut stream);
-  let http_req: Vec<_> = buf_reader
-    .lines()
-    .map(|result| result.unwrap())
-    .take_while(|line| !line.is_empty())
-    .collect();
-
-  let status = format!("HTTP/1.1 200 OK{CRLF}{CRLF}");
-  let body = "Hello!";
-
-  let response = format!("{status}{CRLF}{CRLF}{body}");
-
-  stream.write_all(response.as_bytes()).unwrap();
+  let res = requests::get_date_param(&stream).unwrap();
+  stream.write_all(res.as_bytes()).unwrap();
 }

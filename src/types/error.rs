@@ -7,5 +7,6 @@ pub struct CustomError {
 #[derive(Debug)]
 pub enum ErrorCode {
   BufReaderError,
-  NoRequestInfoFound
+  NoRequestInfoFound,
+  StreamWriteError
 }

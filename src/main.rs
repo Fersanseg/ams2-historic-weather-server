@@ -28,8 +28,8 @@ fn main() -> Result<(), Error> {
 
 fn handle_connection(mut stream: TcpStream) -> Result<(), CustomError> {
   println!("Handling connection");
-  let date = match requests::get_date_param(&stream) {
-    Ok(date) => date,
+  let weatherData: Result<(), Box<dyn std::error::Error + Sync + Send>> = match requests::get_date_param(&stream) {
+    Ok(date) => requests::request_weather_data(date),
     Err(e) => {
       eprintln!("Error getting date parameter: {:#?}", e);
       return Err(e);
@@ -37,9 +37,9 @@ fn handle_connection(mut stream: TcpStream) -> Result<(), CustomError> {
   };
 
   let status_line = "HTTP/1.1 200 OK";
-  let date_length = date.len();
+  let date_length = "{date}".len();
 
-  let response = format!("{status_line}{CRLF}Content-Length: {date_length}{CRLF}{CRLF}{date}");
+  let response = format!("{status_line}{CRLF}Content-Length: {date_length}{CRLF}{CRLF}wqerwqrqwe");
 
   match stream.write_all(response.as_bytes()) {
     Ok(_) => (),

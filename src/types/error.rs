@@ -8,5 +8,5 @@ pub struct CustomError {
 pub enum ErrorCode {
   BufReaderError,
   NoRequestInfoFound,
-  StreamWriteError
+  StreamWriteError,
 }

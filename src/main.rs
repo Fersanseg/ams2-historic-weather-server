@@ -1,8 +1,9 @@
 mod requests;
+mod requests_utils;
 mod types;
 
 use std::{
-  io::{prelude::*, Error}, net::{TcpListener, TcpStream}
+  error::Error, io::prelude::*, net::{TcpListener, TcpStream}
 };
 
 use types::error::CustomError;
@@ -11,25 +12,32 @@ use crate::types::error::ErrorCode;
 const CRLF: &str = "\r\n";
 const IP_ADDR: &str = "127.0.0.1:7878";
 
-fn main() -> Result<(), Error> {
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn Error>> {
+  run_task().await?;
+  return Ok(());
+}
+
+async fn run_task() -> Result<(), Box<dyn Error>> {
   let listener = TcpListener::bind(IP_ADDR)?;
   println!("Server running on port 7878");
 
-  for stream in listener.incoming() {
-    let stream = stream?;
-    match handle_connection(stream) {
-      Ok(_) => (),
+  while let Some(stream) = listener.incoming().next() {
+    match stream {
+      Ok(stream) => {
+        tokio::task::spawn(handle_connection(stream));
+      },
       Err(e) => eprintln!("Error handling connection: {:#?}", e)
     }
   }
 
-  return Ok(());
+  Ok(())
 }
 
-fn handle_connection(mut stream: TcpStream) -> Result<(), CustomError> {
+async fn handle_connection(mut stream: TcpStream) -> Result<(), CustomError> {
   println!("Handling connection");
-  let weatherData: Result<(), Box<dyn std::error::Error + Sync + Send>> = match requests::get_date_param(&stream) {
-    Ok(date) => requests::request_weather_data(date),
+  let weather_data: Result<(), Box<dyn std::error::Error + Sync + Send>> = match requests::get_date_param(&stream) {
+    Ok(date) => requests::request_weather_data(date).await,
     Err(e) => {
       eprintln!("Error getting date parameter: {:#?}", e);
       return Err(e);

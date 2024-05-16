@@ -48,7 +48,7 @@ pub fn get_date_param(stream: &TcpStream) -> Result<String, CustomError> {
 
 pub async fn request_weather_data(date: String) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
   let url = build_api_url(date)?;
-
+  
   let client = Client::new();
 
   let response = client.get(url).send().await?;
@@ -56,8 +56,6 @@ pub async fn request_weather_data(date: String) -> Result<(), Box<dyn std::error
   if status_code.is_success() {
     let body = response.json::<ApiResponse>().await?;
     // The call does happen, need to fill out the ApiResponse struct with the response JSON structure
-    // TODO: Change start_date and end_date (use input date as end_date, and 1 day before as start_date)
-    //  This is because the api returns an error if the end_date is higher than the current date
     // println!("RESPONSE API: {:#?}", body);
   }
 

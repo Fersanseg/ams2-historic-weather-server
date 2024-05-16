@@ -17,12 +17,12 @@ pub fn extract_date(req_line: String) -> Option<String> {
 
 pub fn build_api_url(date: String) -> Result<String, ParseError> {
   let date_chrono = NaiveDate::from_str(&date)?;
-  let date_next_day = date_chrono + Duration::days(1);
+  let date_previous_day = date_chrono - Duration::days(1);
 
   let latitude_param = format!("{}{}", "latitude=", ListCircuitCoordinates::latitudes());
   let longitude_param = format!("{}{}", "&longitude=", ListCircuitCoordinates::longitudes());
-  let start_date_param = format!("{}{}", "&start_date=", date);
-  let end_date_param = format!("{}{}", "&end_date=", date_next_day);
+  let start_date_param = format!("{}{}", "&start_date=", date_previous_day);
+  let end_date_param = format!("{}{}", "&end_date=", date);
 
   let full_url = format!(
     "{}{}{}{}{}{}",

@@ -54,9 +54,8 @@ pub async fn request_weather_data(date: String) -> Result<(), Box<dyn std::error
   let response = client.get(url).send().await?;
   let status_code = response.status();
   if status_code.is_success() {
-    let body = response.json::<ApiResponse>().await?;
-    // The call does happen, need to fill out the ApiResponse struct with the response JSON structure
-    // println!("RESPONSE API: {:#?}", body);
+    let body = response.json::<Vec<ApiResponse>>().await;
+    println!("RESPONSE API: {:#?}", body);
   }
 
   Ok(())

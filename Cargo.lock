@@ -1232,6 +1232,7 @@ dependencies = [
  "http-body-util",
  "reqwest",
  "serde",
+ "serde_json",
  "tokio",
 ]
 

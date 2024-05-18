@@ -1,6 +1,6 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct ApiResponse {
   latitude: f64,
   longitude: f64,
@@ -14,7 +14,7 @@ pub struct ApiResponse {
   hourly: Hourly
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 struct HourlyUnits {
   time: String,
   temperature_2m: String,
@@ -22,7 +22,7 @@ struct HourlyUnits {
   cloud_cover: String
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 struct Hourly {
   time: Vec<String>,
   temperature_2m: Vec<Option<f32>>,

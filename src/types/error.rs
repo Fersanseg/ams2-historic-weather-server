@@ -9,4 +9,6 @@ pub enum ErrorCode {
   BufReaderError,
   NoRequestInfoFound,
   StreamWriteError,
+  APIRequestError,
+  SerializationError
 }

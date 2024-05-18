@@ -6,6 +6,7 @@ use std::{
   error::Error, io::prelude::*, net::{TcpListener, TcpStream}
 };
 
+use serde_json::to_string;
 use types::error::CustomError;
 use crate::types::error::ErrorCode;
 
@@ -35,19 +36,39 @@ async fn run_task() -> Result<(), Box<dyn Error>> {
 }
 
 async fn handle_connection(mut stream: TcpStream) -> Result<(), CustomError> {
-  println!("Handling connection");
-  let weather_data: Result<(), Box<dyn std::error::Error + Sync + Send>> = match requests::get_date_param(&stream) {
-    Ok(date) => requests::request_weather_data(date).await,
+  let date = match requests::get_date_param(&stream) {
+    Ok(date) => date,
     Err(e) => {
       eprintln!("Error getting date parameter: {:#?}", e);
       return Err(e);
-    }
+    },
+  };
+
+  let data = match requests::request_weather_data(date).await {
+    Ok(data) => data,
+    Err(e) => {
+      eprintln!("API request error: {}", e);
+      return Err(CustomError {
+        code: ErrorCode::APIRequestError,
+        msg: e.to_string(),
+    });
+    },
   };
 
   let status_line = "HTTP/1.1 200 OK";
-  let date_length = "{date}".len();
+  let serialized = match to_string(&data) {
+    Ok(json) => json,
+    Err(e) => {
+      eprintln!("Serialization error: {}", e);
+      return Err(CustomError {
+        code: ErrorCode::SerializationError,
+        msg: String::from(format!("Serialization error: {}", e))
+      })
+    },
+  };
 
-  let response = format!("{status_line}{CRLF}Content-Length: {date_length}{CRLF}{CRLF}wqerwqrqwe");
+  let json_length = "{serialized}".len();
+  let response = format!("{status_line}{CRLF}Content-Length: {json_length}{CRLF}{CRLF}{serialized}");
 
   match stream.write_all(response.as_bytes()) {
     Ok(_) => (),

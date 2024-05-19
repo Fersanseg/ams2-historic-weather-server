@@ -54,7 +54,7 @@ async fn handle_connection(mut stream: TcpStream) -> Result<(), CustomError> {
     });
     },
   };
-
+  
   let status_line = "HTTP/1.1 200 OK";
   let serialized = match to_string(&data) {
     Ok(json) => json,
@@ -67,9 +67,9 @@ async fn handle_connection(mut stream: TcpStream) -> Result<(), CustomError> {
     },
   };
 
-  let json_length = "{serialized}".len();
+  let json_length = serialized.len();
   let response = format!("{status_line}{CRLF}Content-Length: {json_length}{CRLF}{CRLF}{serialized}");
-
+  
   match stream.write_all(response.as_bytes()) {
     Ok(_) => (),
     Err(e) => {

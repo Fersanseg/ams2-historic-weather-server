@@ -4,7 +4,14 @@ use std::{
 };
 use reqwest::Client;
 
-use crate::requests_utils::{extract_date, build_api_url};
+use crate::{
+  requests_utils::{
+    build_api_url, 
+    extract_date, 
+    map_coords
+  }, 
+  types::weather_data::WeatherData
+};
 use crate::types::{
   api_response::ApiResponse, 
   error::{
@@ -46,7 +53,7 @@ pub fn get_date_param(stream: &TcpStream) -> Result<String, CustomError> {
 
 
 
-pub async fn request_weather_data(date: String) -> Result<Vec<ApiResponse>, Box<dyn std::error::Error + Send + Sync>> {
+pub async fn request_weather_data(date: String) -> Result<Vec<WeatherData>, Box<dyn std::error::Error + Send + Sync>> {
   let url = build_api_url(date)?;
   
   let client = Client::new();
@@ -55,7 +62,7 @@ pub async fn request_weather_data(date: String) -> Result<Vec<ApiResponse>, Box<
   let status_code = response.status();
   if status_code.is_success() {
     match response.json::<Vec<ApiResponse>>().await {
-      Ok(body) => return Ok(body),
+      Ok(body) => return Ok(map_coords(body)),
       Err(err) => return Err(Box::new(std::io::Error::new(std::io::ErrorKind::InvalidData, err)))
     }
   }

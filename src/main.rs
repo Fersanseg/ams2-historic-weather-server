@@ -16,13 +16,22 @@ const CRLF: &str = "\r\n";
 const IP_ADDR: &str = "127.0.0.1:7878";
 
 
-
-
-/// This is the main body for the function.
-/// Write your code inside it.
-/// There are some code example in the following URLs:
-/// - https://github.com/awslabs/aws-lambda-rust-runtime/tree/main/examples
 async fn function_handler(event: Request) -> Result<Response<Body>, LambdaError> {
+  if let Some(date_param) = event
+    .query_string_parameters_ref()
+    .and_then(|params| params.first("date")) {
+
+      return Ok(Response::builder()
+      .status(200)
+      .header("content-type", "text/html")
+      .body(date_param.into())
+      .map_err(Box::new)?);
+    }
+
+    return Err(LambdaError::from("No date parameter found"));
+
+
+
     // Extract some useful information from the request
     let who = event
         .query_string_parameters_ref()
@@ -46,21 +55,6 @@ async fn main() -> Result<(), LambdaError> {
 
     run(service_fn(function_handler)).await
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

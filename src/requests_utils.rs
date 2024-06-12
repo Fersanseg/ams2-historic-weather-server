@@ -3,20 +3,6 @@ use chrono::{Duration, NaiveDate, ParseError};
 
 use crate::types::{api_response::ApiResponse, mapped_coords::MappedCoords, weather_data::WeatherData};
 
-
-pub fn extract_date(req_line: String) -> Option<String> {
-  if !req_line.starts_with("GET") {
-    return None;
-  }
-
-  req_line.split_once("GET /?date=")
-    // Discard the first part of the split ("GET /?date=") and keep the part that retains the date
-    .and_then(|(_, date_part)| date_part.split_once(' '))
-    // Discard the second part of the split and keep the first one (the actual date) 
-    .map(|(date, _)| String::from(date))
-}
-
-
 pub fn build_api_url(date: String) -> Result<String, ParseError> {
   let date_chrono = NaiveDate::from_str(&date)?;
   let date_previous_day = date_chrono - Duration::days(1);

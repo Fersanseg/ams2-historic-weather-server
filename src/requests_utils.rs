@@ -1,15 +1,9 @@
-use std::str::FromStr;
-use chrono::{Duration, NaiveDate, ParseError};
-
 use crate::types::{api_response::ApiResponse, mapped_coords::MappedCoords, weather_data::WeatherData};
 
-pub fn build_api_url(date: String) -> Result<String, ParseError> {
-  let date_chrono = NaiveDate::from_str(&date)?;
-  let date_previous_day = date_chrono - Duration::days(1);
-
+pub fn build_api_url(date: String) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
   let latitude_param = format!("{}{}", "latitude=", ListCircuitCoordinates::latitudes());
   let longitude_param = format!("{}{}", "&longitude=", ListCircuitCoordinates::longitudes());
-  let start_date_param = format!("{}{}", "&start_date=", date_previous_day);
+  let start_date_param = format!("{}{}", "&start_date=", date);
   let end_date_param = format!("{}{}", "&end_date=", date);
 
   let full_url = format!(

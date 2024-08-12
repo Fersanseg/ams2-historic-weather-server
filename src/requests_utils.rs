@@ -37,7 +37,7 @@ impl ListCircuitCoordinates {
     MappedCoords { name: "Bathurst", latitude: -33.427067, longitude: 149.51793},
     MappedCoords { name: "Brands Hatch", latitude: 51.35325, longitude: 0.32490975},
     MappedCoords { name: "Brasilia", latitude: -15.782073, longitude: -47.88678},
-    MappedCoords { name: "Buenos Aires", latitude: 34.692444, longitude: -58.48294},//
+    MappedCoords { name: "Buenos Aires", latitude: -34.692444, longitude: -58.48294},
     MappedCoords { name: "Cadwell Park", latitude: 53.321613, longitude: 0.0},
     MappedCoords { name: "Campo Grande", latitude: -20.492092, longitude: -54.471283},
     MappedCoords { name: "Cascavel", latitude: -24.991213, longitude: -53.379974},
@@ -47,7 +47,7 @@ impl ListCircuitCoordinates {
     MappedCoords { name: "Curvelo", latitude: -18.804922, longitude: -44.424774},
     MappedCoords { name: "Daytona", latitude: 29.209137, longitude: -81.0932},
     MappedCoords { name: "Donnington Park", latitude: 52.829525, longitude: -1.3508606},
-    MappedCoords { name: "Estoril (Cascais)", latitude: 38.76977, longitude: -9.454315},//
+    MappedCoords { name: "Estoril (Cascais)", latitude: 38.76977, longitude: -9.331512},
     MappedCoords { name: "Fontana", latitude: 34.059753, longitude: -117.33751},
     MappedCoords { name: "Foz", latitude: -25.623901, longitude: -54.489136},
     MappedCoords { name: "Galeao", latitude: -22.81195, longitude: -43.3125},
@@ -56,11 +56,11 @@ impl ListCircuitCoordinates {
     MappedCoords { name: "Granja Viana", latitude: -23.585238, longitude: -46.849335},
     MappedCoords { name: "Guaporé", latitude: -28.857645, longitude: -51.899292},
     MappedCoords { name: "Hockenheimring", latitude: 49.314587, longitude: 8.490566},
-    MappedCoords { name: "Ibarra", latitude: 0.38664323, longitude: -78.037506}, //
+    MappedCoords { name: "Ibarra", latitude: 0.38664323, longitude: -78.037506},
     MappedCoords { name: "Imola", latitude: 44.32337, longitude: 11.697248},
     MappedCoords { name: "Indianapolis", latitude: 39.824253, longitude: -86.23953},
     MappedCoords { name: "Interlagos", latitude: -23.022848, longitude: -43.542328},
-    MappedCoords { name: "Jacarepaguá", latitude: -22.952549, longitude: -43.30899}, //
+    MappedCoords { name: "Jacarepaguá", latitude: -22.952549, longitude: -43.30899},
     MappedCoords { name: "Jerez", latitude: 36.731106, longitude: -6.0236206},
     MappedCoords { name: "Kyalami", latitude: -25.975395, longitude: 28.032787},
     MappedCoords { name: "Laguna Seca", latitude: 36.590508, longitude: -121.806274},
@@ -78,7 +78,7 @@ impl ListCircuitCoordinates {
     MappedCoords { name: "Santa Cruz do Sul", latitude: -29.77153, longitude: -52.473846},
     MappedCoords { name: "Silverstone", latitude: 52.056236, longitude: -0.99264526},
     MappedCoords { name: "Snetterton", latitude: 52.47803, longitude: 1.0037174},
-    MappedCoords { name: "Spa-Francorchamps", latitude: 50.439365, longitude: 6.0317464}, //
+    MappedCoords { name: "Spa-Francorchamps", latitude: 50.439365, longitude: 6.0317464},
     MappedCoords { name: "Speedland", latitude: -23.514938, longitude: -46.610504},
     MappedCoords { name: "Spielberg", latitude: 47.205624, longitude: 14.828711},
     MappedCoords { name: "Suzuka (Kansai)", latitude: 34.90334, longitude: 136.59898},
@@ -112,7 +112,11 @@ pub fn map_coords(coords: Vec<ApiResponse>) -> Vec<WeatherData> {
     .filter_map(|coord| {
       ListCircuitCoordinates::CIRCUITS_COORDS
         .iter()
-        .find(|&c| c.latitude == coord.latitude && c.longitude == coord.longitude)
+        .find(|&c| {
+          num_between(coord.latitude, c.latitude-1.0, c.latitude+1.0) 
+            && num_between(coord.longitude, c.longitude-1.0, c.longitude+1.0)
+
+        })
         .map(|c| {
           WeatherData {
             name: c.name.to_string(),
@@ -121,4 +125,8 @@ pub fn map_coords(coords: Vec<ApiResponse>) -> Vec<WeatherData> {
         })
     })
     .collect()
+}
+
+fn num_between(num: f64, min: f64, max: f64) -> bool {
+  num >= min && num <= max
 }

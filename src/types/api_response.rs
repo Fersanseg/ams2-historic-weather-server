@@ -9,7 +9,7 @@ pub struct ApiResponse {
   timezone: String,
   timezone_abbreviation: String,
   elevation: f64,
-  location_id: Option<i16>,
+  location_id: Option<u8>,
   hourly_units: HourlyUnits,
   hourly: Hourly
 }
